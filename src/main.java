@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class main {
@@ -11,7 +9,7 @@ public class main {
 
         System.out.println("Enter number of Resources !");
         int m=cin.nextInt();
-
+        int [] request;
         Banker banker =new Banker(n,m);
         banker.compute();
 
@@ -24,13 +22,9 @@ public class main {
             System.out.println("3- Quit ");
             int num=cin.nextInt();
             if(num==1){
-                int [] request = new int[m];
                 System.out.println("Please Enter The Process Number you want to request :");
                 int p=cin.nextInt();
-                for (int i = 0; i < m; i++) {
-                    System.out.println("Please Enter The Resource Number you want to request :");
-                    request[i]=cin.nextInt();
-                }
+                request = banker.need[p];
                 banker.Request(p,request);
 
             }
@@ -43,7 +37,7 @@ public class main {
                     arrr[i]=cin.nextInt();
                     System.out.println();
                 }
-                banker.Release(process_num,arrr);
+                banker.Release(process_num);
             }
             else{
                 break;
