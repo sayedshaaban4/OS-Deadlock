@@ -38,6 +38,7 @@ public class main {
                     System.out.println();
                 }
                 banker.Release(process_num);
+
             }
             else{
                 break;
