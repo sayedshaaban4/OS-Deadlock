@@ -94,11 +94,99 @@ public class Banker {
     }
 
     void Request(int process,int [] arr){
-        // To Do
+        System.out.println("The Request array will be : ");
+        for(int i=0;i<R;i++) System.out.print(arr[i]+" ");
+        System.out.println();
+        for(int i=0;i<R;i++){
+            if(arr[i]>need[process][i]){
+                System.out.println("The Request is not possible");
+                return;
+            }
+        }
+        for(int i=0;i<R;i++){
+            if(arr[i]>available[i]){
+                System.out.println("The Request is not possible");
+                return;
+            }
+        }
+        for(int i=0;i<R;i++){
+            available[i]=available[i]-arr[i];
+            allocation[process][i]=allocation[process][i]+arr[i];
+            need[process][i]=need[process][i]-arr[i];
+        }
+        System.out.println("The New available array will be : ");
+        for(int i=0;i<R;i++) System.out.print(available[i]+" ");
+        System.out.println();
+    }
+
+//    void Terminate(int process){
+//        for(int i=0;i<R;i++){
+//            available[i]=available[i]+allocation[process][i];
+//            allocation[process][i]=0;
+//            need[process][i]=maximum[process][i];
+//        }
+//    }
+
+    void calculateNeed(int need[][], int maxm[][], int allot[][]){
+        for(int i=0;i<P;i++){
+            for(int j=0;j<R;j++){
+                need[i][j]=maxm[i][j]-allot[i][j];
+            }
+        }
+    }
+
+    boolean isSafe(int[]available,int[][]need, int[][]allocation){
+        calculateNeed(need,maximum,allocation);
+        boolean[] finish = new boolean[P];
+        int[] work = new int[R];
+        for(int i=0;i<R;i++){
+            work[i]=available[i];
+        }
+        int count=0;
+        while(count<P){
+            boolean found = false;
+            for(int i=0;i<P;i++){
+                if(!finish[i]){
+                    int j=0;
+                    for(j=0;j<R;j++){
+                        if(need[i][j]<=work[j]){
+                            break;
+                        }
+                    }
+                    if(j==R){
+                        for(int k=0;k<R;k++){
+                            work[k]=work[k]+allocation[i][k];
+
+                        }
+                        safe_Order.add(i);
+                        finish[i]=true;
+                        found=true;
+                    }
+                }
+            }
+            if(!found){
+                System.out.println("The System is not in safe state");
+                return false;
+            }
+            System.out.println("The System is in safe state and safe sequence is : ");
+            for (Integer integer : safe_Order) {
+                System.out.println("Process number : " + integer);
+            }
+        }
+        return true;
+
     }
 
     void Recovery(){
-        // To Do
+       boolean check =isSafe(available,need,allocation);
+       if (check){
+           System.out.println("The System is in safe state");
+       }
+       else{
+           System.out.println("The System is not in safe state... attempting to recover");
+
+
+       }
 
     }
 }

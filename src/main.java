@@ -24,7 +24,14 @@ public class main {
             System.out.println("3- Quit ");
             int num=cin.nextInt();
             if(num==1){
-
+                int [] request = new int[m];
+                System.out.println("Please Enter The Process Number you want to request :");
+                int p=cin.nextInt();
+                for (int i = 0; i < m; i++) {
+                    System.out.println("Please Enter The Resource Number you want to request :");
+                    request[i]=cin.nextInt();
+                }
+                banker.Request(p,request);
 
             }
             else if(num==2){
