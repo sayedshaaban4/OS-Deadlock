@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class main {
+public class Main {
     public static void main(String[] args) {
         Scanner cin = new Scanner(System.in);
 
@@ -12,14 +12,13 @@ public class main {
         Banker banker =new Banker(n,m);
         banker.initialize();
 
-        //Boolean ok = true;
-
         while(true){
             System.out.println(" Please Enter The Operation number you want to do :");
             System.out.println("1- Request ");
             System.out.println("2- Release ");
             System.out.println("3- Quit ");
             int num=cin.nextInt();
+
             if(num==1){
                 int [] requestRes=new int[m];
                 System.out.println("Please Enter The Process Number you want to request :");
@@ -30,8 +29,8 @@ public class main {
                     System.out.println();
                 }
                 banker.Request(p,requestRes);
-
             }
+
             else if(num==2){
                 int [] releaseRes=new int[m];
                 System.out.println("Enter The number of process ");
@@ -43,6 +42,7 @@ public class main {
                 }
                 banker.Release(process_num,releaseRes);
             }
+
             else if (num==3){
                 System.out.println("Quit");
                 break;
@@ -52,6 +52,5 @@ public class main {
                 System.out.println("Wrong Input");
             }
         }
-
     }
 }
