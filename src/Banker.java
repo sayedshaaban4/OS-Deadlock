@@ -125,9 +125,11 @@ public class Banker {
             }
             if(flag){
                 for (int i = 0; i < R; i++) {
+                    if (arr[i] <= need[process][i] && available[i] >= arr[i]) {
                         need[process][i] = need[process][i] - arr[i];
                         available[i] = available[i] - arr[i];
                         allocation[process][i] = allocation[process][i] + arr[i];
+                    }
                 }
 
                 System.out.println("The New available resources array will be : ");
