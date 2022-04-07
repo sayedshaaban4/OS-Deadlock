@@ -7,6 +7,7 @@ public class Banker {
     int [][] maximum;
     int [][] allocation;
     int [][] need;
+    int [][] Temp_need;
     ArrayList<Integer> safeOrder = new ArrayList<Integer>();
     int P,R;
     Banker(int n,int m){
@@ -17,32 +18,34 @@ public class Banker {
         maximum = new int[P][R];
         allocation = new int[P][R];
         need = new int[P][R];
+        Temp_need = new int[P][R];
     }
 
-    void compute(){
+    void initialize(){
         System.out.println("Enter the number of the available Resources respectively  : ");
-        String s=cin.nextLine();
-        String[] ss =s.split(" ");
+        String tempRes=cin.nextLine();
+        String[] tempResArr =tempRes.split(" ");
         for(int i=0;i<R;i++) {
-            available[i] = Integer.parseInt(ss[i]);
+            available[i] = Integer.parseInt(tempResArr[i]);
             Temp_available[i]=available[i];
         }
 
         for(int i=0;i<P;i++){
             System.out.println("Enter the number of the Maximum needs of Resources in process number ("+(i) +") respectively : ");
-            String str=cin.nextLine();
-            String[] temp =str.split(" ");
+            String tempMaxRes=cin.nextLine();
+            String[] tempMaxResArr =tempMaxRes.split(" ");
             for(int j=0;j<R;j++){
-                maximum[i][j]=Integer.parseInt(temp[j]);
+                maximum[i][j]=Integer.parseInt(tempMaxResArr[j]);
             }
         }
 
         for(int i=0;i<P;i++){
             System.out.println("Enter the number of the Allocation of Resources in process number ("+(i) +") respectively : ");
-            String str=cin.nextLine();
-            String[] temp =str.split(" ");
+            String tempAllo=cin.nextLine();
+            String[] tempAlloArr =tempAllo.split(" ");
+
             for(int j=0;j<R;j++){
-                allocation[i][j]= Integer.parseInt(temp[j]);
+                allocation[i][j]= Integer.parseInt(tempAlloArr[j]);
             }
         }
 
@@ -52,99 +55,116 @@ public class Banker {
             }
         }
 
-        //////////////////////////////////////////////////////
-        //Safe sequence prediction
+
+    }
+
+    boolean isSafe(){
         Boolean [] finish = new Boolean[P];
+        ArrayList <Integer> safeState = new ArrayList<Integer>();
+
         for (int i=0;i<P;i++)finish[i]=false;
 
         for(int i=0;i<P*P;i++){
             int cnt=0;
 
             for(int j=0;j<R;j++){
-                if(need[i%P][j] <=Temp_available[j] && !finish[i%P])cnt++;
+                if(Temp_need[i%P][j] <=Temp_available[j] && !finish[(i%P)])cnt++;
             }
 
             if(cnt==R){
-                finish[i%P]=true;
+                finish[(i%P)]=true;
 
                 for(int j=0;j<R;j++){
                     Temp_available[j] = Temp_available[j] + allocation[i%P][j];
                 }
-
-                safeOrder.add(i%P);
+                safeState.add(i%P);
             }
+
         }
-        System.out.println("To make The System at Safe State, You Must Follow this processes order : ");
-        for(int i = 0; i< safeOrder.size(); i++){
-            System.out.println("Process number : "+(safeOrder.get(i)));
+        if(safeState.size()==P) {
+            safeOrder.clear();
+            for(int i=0;i<P;i++) {
+                safeOrder.add(safeState.get(i));
+            }
+            for(int i=0;i<P;i++) {
+                for(int j=0;j<R;j++) {
+                    need[i][j]=Temp_need[i][j];
+                }
+            }
+            System.out.println("To make The System at Safe State, You Must Follow this processes order : ");
+            for(int i = 0; i< safeOrder.size(); i++){
+                System.out.println("Process number : "+(safeOrder.get(i)));
+            }
+            return true;
         }
+        return false;
     }
 
-    boolean check(int process){
-        if(safeOrder.size()>0) {
-            if (process == safeOrder.get(0)) {
-                safeOrder.remove(0);
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
+
 
     void Request(int process,int [] arr){
-        if(check(process)) {
-            boolean flag2 = true;
-            for (int i = 0; i < R; i++) {
-                if (arr[i] > need[process][i] || arr[i] > available[i]) {
-                    flag2 = false;
-                    break;
-                }
-            }
-            boolean flag = false;
-            for (int i = 0; i < R; i++) {
-                if (arr[i] <= need[process][i] && available[i] >= arr[i] && flag2) {
-                    flag = true;
-                    need[process][i] = need[process][i] - arr[i];
-                    available[i] = available[i] - arr[i];
-                    allocation[process][i] = allocation[process][i] + arr[i];
-                } else {
-                    flag = false;
-                    System.out.println("The Requested Resources are not available..Attempting resources recovery..");
-                    Recovery();
-                    break;
 
+            for(int i=0;i<P;i++){
+                for(int j=0;j<R;j++){
+                    Temp_need[i][j]=need[i][j];
                 }
             }
-            if (flag) {
-                Release(process);
+            for(int i=0;i<R;i++){
+                Temp_need[process][i]=Temp_need[process][i]+arr[i];
             }
-            System.out.println("The New available resources array will be : ");
-            for (int i = 0; i < R; i++) System.out.print(available[i] + " ");
-            System.out.println();
-        }
-        else {
-            System.out.println("The Requested Process is not in the Safe State");
-        }
+            int count=0;
+            boolean flag=true;
+            while(!isSafe()){
+                if(count==(P-1)){
+                    System.out.println("Unable to make request...");
+                    flag=false;
+                    break;
+                }
+                    count++;
+                    Recovery(process);
+            }
+            if(flag){
+                for (int i = 0; i < R; i++) {
+                        need[process][i] = need[process][i] - arr[i];
+                        available[i] = available[i] - arr[i];
+                        allocation[process][i] = allocation[process][i] + arr[i];
+                }
+
+                System.out.println("The New available resources array will be : ");
+                for (int i = 0; i < R; i++) System.out.print(available[i] + " ");
+                System.out.println();
+            }
+
     }
 
-    void Release(int process){
+
+    void Release(int process,int [] arr){
+
         for(int i=0;i<R;i++){
-            available[i]=available[i]+allocation[process][i];
-            allocation[process][i]=0;
-            need[process][i]=maximum[process][i];
+            allocation[process][i]=allocation[process][i]-arr[i];
+            available[i]=available[i]+arr[i];
         }
+        System.out.println("The New available array will be : ");
+        for(int i=0;i<R;i++) System.out.print(available[i]+" ");
+        System.out.println();
     }
 
-    void Recovery() {
-        for(int i=0;i<P;i++)
-        {
-            for(int j=0;j<R;j++)
-            {
-                need[i][j]=maximum[i][j];
-                available[j]=available[j]+allocation[i][j];
-                allocation[i][j]=0;
+    void Recovery(int process) {
+        int mx = -1;
+        int indx=-1;
+        for (int i = 0; i < P; i++) {
+            if (i != process) {
+                int sum = 0;
+                for (int j = 0; j < R; j++)
+                    sum += maximum[i][j];
+                if(sum>mx){
+                    mx=sum;
+                    indx=1;
+                }
             }
+        }
+        for (int i = 0; i < R; i++) {
+            allocation[indx][i] = 0;
         }
     }
 
