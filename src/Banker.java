@@ -8,6 +8,7 @@ public class Banker {
     int [][] allocation;
     int [][] need;
     int [][] Temp_need;
+    
     ArrayList<Integer> safeOrder = new ArrayList<>();
     int P,R;
 
